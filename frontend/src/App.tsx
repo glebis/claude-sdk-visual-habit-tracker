@@ -1,8 +1,10 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useHabits } from "@/hooks/useHabits";
+import { useSettings } from "@/hooks/useSettings";
 import { useAgent } from "@/hooks/useAgent";
 import { HabitList } from "@/components/HabitList";
 import { AddHabit } from "@/components/AddHabit";
+import { SettingsPanel } from "@/components/SettingsPanel";
 import { ProgressArt } from "@/components/ProgressArt";
 import { AgentChat } from "@/components/AgentChat";
 import { StatsBar } from "@/components/StatsBar";
@@ -32,6 +34,8 @@ function App() {
     refresh,
   } = useHabits();
 
+  const { settings, updateSettings } = useSettings();
+
   const [filter, setFilter] = useState<FilterOption>("all");
   const [sort, setSort] = useState<SortOption>("streak");
   const [latestImage, setLatestImage] = useState<string | null>(null);
@@ -58,17 +62,18 @@ function App() {
   };
 
   const handleComplete = async (habitId: string, proofImage?: string) => {
-    await completeHabit(habitId, proofImage);
     setIsGenerating(true);
     const habit = habits.find((h) => h.id === habitId);
     const name = habit?.name ?? "a habit";
     if (proofImage) {
+      // Don't complete yet -- let agent verify first
       const filename = proofImage.split("/").pop() ?? "";
       sendMessage(
-        `I just completed "${name}" and uploaded proof. The proof image is at: ${proofImage}. Please verify it, then generate new progress art.`,
-        { displayText: `Completed "${name}" with proof`, image: `/api/uploads/${filename}` },
+        `I uploaded proof for "${name}" (habit_id: ${habitId}). The proof image is at: ${proofImage}. Please verify the photo -- if it looks legit, mark the habit complete and generate progress art. If not, tell me why.`,
+        { displayText: `Uploaded proof for "${name}"`, image: `/api/uploads/${filename}` },
       );
     } else {
+      await completeHabit(habitId);
       sendMessage(
         `I just completed "${name}". Generate new progress art to celebrate.`
       );
@@ -123,6 +128,11 @@ function App() {
                 </SelectContent>
               </Select>
               <AddHabit onAdd={addHabit} />
+              <SettingsPanel
+                settings={settings}
+                onSave={updateSettings}
+                onDataPathChange={refresh}
+              />
             </div>
           </header>
           <div className="flex flex-col">

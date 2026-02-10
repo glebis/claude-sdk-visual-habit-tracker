@@ -18,6 +18,7 @@ from fastapi.staticfiles import StaticFiles
 from habit_store import HabitStore
 from agent import AgentSession
 from image_generator import IMAGES_DIR
+from settings_store import load_settings, update_settings
 
 app = FastAPI(title="Habit Tracker")
 
@@ -101,6 +102,16 @@ async def upload_file(file: UploadFile = File(...)):
     with open(path, "wb") as f:
         shutil.copyfileobj(file.file, f)
     return {"filename": name, "path": str(path)}
+
+
+@app.get("/api/settings")
+def get_settings():
+    return load_settings()
+
+
+@app.patch("/api/settings")
+def patch_settings(body: dict):
+    return update_settings(body)
 
 
 @app.get("/api/images")

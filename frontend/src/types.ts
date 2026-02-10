@@ -45,3 +45,15 @@ export interface ChatMessage {
   image?: string;
   timestamp: number;
 }
+
+export type ProofStrictness = "lenient" | "normal" | "strict" | "off";
+export type StreakReset = "strict" | "forgiving";
+
+export interface Settings {
+  image_prompt: string;
+  personal_prompt: string;
+  proof_strictness: ProofStrictness;
+  data_path: string;
+  art_model: string;
+  streak_reset: StreakReset;
+}

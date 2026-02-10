@@ -176,11 +176,37 @@ async def generate_progress_art_tool(args):
         return {"content": [{"type": "text", "text": f"Art generation failed: {e}"}], "is_error": True}
 
 
+@tool(
+    "uncomplete_habit",
+    "Undo today's completion for a habit. Use when proof verification fails or a completion needs to be rolled back.",
+    {
+        "type": "object",
+        "properties": {
+            "habit_id": {"type": "string", "description": "The habit's UUID"},
+        },
+        "required": ["habit_id"],
+    },
+)
+async def uncomplete_habit(args):
+    result = store.uncomplete_habit(args["habit_id"])
+    if result is None:
+        return {"content": [{"type": "text", "text": "Habit not found."}], "is_error": True}
+    return {
+        "content": [
+            {
+                "type": "text",
+                "text": f"Unmarked '{result['name']}' -- no longer done for today.",
+            }
+        ]
+    }
+
+
 ALL_TOOLS = [
     add_habit,
     list_habits,
     complete_habit,
     delete_habit,
+    uncomplete_habit,
     get_streak_stats,
     generate_progress_art_tool,
 ]

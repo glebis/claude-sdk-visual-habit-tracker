@@ -6,7 +6,16 @@ from datetime import datetime, date, timedelta
 from pathlib import Path
 from typing import Optional
 
-DATA_FILE = Path(__file__).parent / "habits.json"
+from settings_store import get_setting
+
+
+def _data_file() -> Path:
+    """Resolve data file path from settings."""
+    raw = get_setting("data_path")
+    p = Path(raw)
+    if not p.is_absolute():
+        p = Path(__file__).parent / p
+    return p
 
 
 def _today() -> str:
@@ -14,13 +23,14 @@ def _today() -> str:
 
 
 def _load() -> list[dict]:
-    if DATA_FILE.exists():
-        return json.loads(DATA_FILE.read_text())
+    f = _data_file()
+    if f.exists():
+        return json.loads(f.read_text())
     return []
 
 
 def _save(habits: list[dict]):
-    DATA_FILE.write_text(json.dumps(habits, indent=2, default=str))
+    _data_file().write_text(json.dumps(habits, indent=2, default=str))
 
 
 def _is_due_today(habit: dict) -> bool:
@@ -76,10 +86,15 @@ def calculate_streak(habit: dict) -> int:
     Walks backwards from today through due dates.
     A streak breaks when a due date has no completion.
     Today being incomplete doesn't break the streak (day isn't over yet).
+
+    In "forgiving" mode (streak_reset setting), one missed due day
+    is allowed without breaking the streak.
     """
     completions = {c["date"] for c in habit.get("completions", [])}
     today = date.today()
     created = date.fromisoformat(habit["created_at"][:10])
+    forgiving = get_setting("streak_reset") == "forgiving"
+    missed_allowance = 1 if forgiving else 0
     streak = 0
     current = today
 
@@ -108,6 +123,8 @@ def calculate_streak(habit: dict) -> int:
         if was_due:
             if current.isoformat() in completions:
                 streak += 1
+            elif missed_allowance > 0:
+                missed_allowance -= 1
             else:
                 break  # Streak broken
         current -= timedelta(days=1)

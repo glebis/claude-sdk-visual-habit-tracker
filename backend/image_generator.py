@@ -8,18 +8,10 @@ from pathlib import Path
 from google import genai
 from google.genai import types
 
+from settings_store import get_setting
+
 IMAGES_DIR = Path(__file__).parent / "generated_images"
 IMAGES_DIR.mkdir(exist_ok=True)
-
-STYLE_PROMPT = (
-    "Gerd Arntz isotype style illustration on aged paper texture. "
-    "Muted earthy colors: terracotta, olive green, dark navy, warm ochre. "
-    "Bold geometric shapes, clean flat design, no text, no letters, no words. "
-    "Simplified pictographic figures. Vintage infographic aesthetic. "
-    "Linocut print texture."
-)
-
-IMAGE_MODEL = "gemini-2.5-flash-image"
 
 
 def _get_client() -> genai.Client:
@@ -37,8 +29,9 @@ def generate_progress_art(habits_summary: str) -> dict:
 
     Returns {"image_path": str, "image_name": str} on success.
     """
+    style_prompt = get_setting("image_prompt")
     prompt = (
-        f"{STYLE_PROMPT}\n\n"
+        f"{style_prompt}\n\n"
         f"Generate an image: an isotype chart representing personal habit progress:\n"
         f"{habits_summary}\n\n"
         f"Use filled geometric figures for completed/active streaks, "
@@ -48,7 +41,7 @@ def generate_progress_art(habits_summary: str) -> dict:
 
     client = _get_client()
     response = client.models.generate_content(
-        model=IMAGE_MODEL,
+        model=get_setting("art_model"),
         contents=prompt,
         config=types.GenerateContentConfig(
             response_modalities=["IMAGE"],

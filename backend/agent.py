@@ -17,8 +17,9 @@ from claude_agent_sdk import (
     ToolUseBlock,
 )
 from tools import ALL_TOOLS
+from settings_store import get_setting
 
-SYSTEM_PROMPT = """\
+BASE_SYSTEM_PROMPT = """\
 You are a supportive habit tracking assistant. You help users build and maintain healthy habits.
 
 Your capabilities:
@@ -34,10 +35,57 @@ Personality:
 - Use streak data to motivate: "7 days strong!" or "Let's restart that streak"
 - When generating art, briefly note what the symbols represent
 
-When a user uploads a proof photo, examine it and confirm whether it shows evidence of the habit being done. Be reasonable -- a yoga mat photo counts for exercise, a book on a table counts for reading.
-
 IMPORTANT: After verifying and accepting a proof photo, you MUST always generate new progress art using the generate_progress_art tool. This is automatic -- do not ask the user, just do it.
 """
+
+STRICTNESS_INSTRUCTIONS = {
+    "off": (
+        "\nProof verification: DISABLED. When a user uploads a proof photo, "
+        "immediately mark the habit complete without examining the image. "
+        "Then generate progress art."
+    ),
+    "lenient": (
+        "\nProof verification flow:\n"
+        "When a user uploads a proof photo, give them the benefit of the doubt. "
+        "Accept any photo that could plausibly relate to the habit. "
+        "Only reject obviously unrelated images (e.g. a cat photo for 'go running').\n"
+        "- If accepted: call complete_habit with the habit_id and proof_image, then generate progress art.\n"
+        "- If rejected: explain briefly and ask to try again."
+    ),
+    "normal": (
+        "\nProof verification flow:\n"
+        "When a user uploads a proof photo, examine it and confirm whether it shows "
+        "evidence of the habit being done. Be reasonable -- a yoga mat photo counts for "
+        "exercise, a book on a table counts for reading.\n"
+        "- If the proof looks legit: call complete_habit with the habit_id and proof_image, "
+        "then generate progress art. Do NOT ask the user before completing -- just do it.\n"
+        "- If the proof is unrelated or unclear: do NOT call complete_habit. Explain why "
+        "the photo doesn't match and ask the user to try again.\n"
+        "- If a habit was completed by mistake, use uncomplete_habit to roll it back."
+    ),
+    "strict": (
+        "\nProof verification flow:\n"
+        "When a user uploads a proof photo, examine it carefully. The photo must clearly "
+        "and directly show the habit activity being performed or its immediate result. "
+        "Indirect evidence is not enough -- a yoga mat alone doesn't count for exercise "
+        "(you need to see someone on it), a closed book doesn't count for reading.\n"
+        "- If the proof clearly shows the activity: call complete_habit, then generate progress art.\n"
+        "- Otherwise: do NOT call complete_habit. Explain specifically what you'd need to see."
+    ),
+}
+
+
+def _build_system_prompt() -> str:
+    """Build full system prompt from base + strictness + personal prompt."""
+    strictness = get_setting("proof_strictness")
+    parts = [BASE_SYSTEM_PROMPT]
+    parts.append(STRICTNESS_INSTRUCTIONS.get(strictness, STRICTNESS_INSTRUCTIONS["normal"]))
+
+    personal = get_setting("personal_prompt")
+    if personal and personal.strip():
+        parts.append(f"\nAdditional instructions from user:\n{personal.strip()}")
+
+    return "\n".join(parts)
 
 
 def create_agent_options() -> ClaudeAgentOptions:
@@ -49,12 +97,13 @@ def create_agent_options() -> ClaudeAgentOptions:
     )
 
     return ClaudeAgentOptions(
-        system_prompt=SYSTEM_PROMPT,
+        system_prompt=_build_system_prompt(),
         mcp_servers={"habit-tracker": server},
         allowed_tools=[
             "add_habit",
             "list_habits",
             "complete_habit",
+            "uncomplete_habit",
             "delete_habit",
             "get_streak_stats",
             "generate_progress_art",

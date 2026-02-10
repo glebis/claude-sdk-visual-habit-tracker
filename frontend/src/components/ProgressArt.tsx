@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Palette, ChevronLeft, ChevronRight } from "lucide-react";
+import { RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ProgressArtProps {
   latestImage: string | null;
@@ -65,12 +65,12 @@ export function ProgressArt({
           )}
         </h2>
         <Button
-          variant="outline"
+          variant="default"
           size="sm"
           onClick={onRequestArt}
           disabled={isGenerating}
         >
-          <Palette className="h-3.5 w-3.5 mr-1" />
+          <RefreshCw className={`h-3.5 w-3.5 mr-1 ${isGenerating ? "animate-spin" : ""}`} />
           {isGenerating ? "Generating..." : "Generate"}
         </Button>
       </div>
@@ -117,7 +117,7 @@ export function ProgressArt({
           </>
         ) : (
           <div className="text-center text-muted-foreground text-sm p-6">
-            <Palette className="h-8 w-8 mx-auto mb-2 opacity-30" />
+            <RefreshCw className="h-8 w-8 mx-auto mb-2 opacity-30" />
             <p className="font-medium">Your progress, illustrated</p>
             <p className="text-xs mt-1">
               Complete a few habits, then hit Generate.
