@@ -48,6 +48,14 @@ export interface ChatMessage {
 
 export type ProofStrictness = "lenient" | "normal" | "strict" | "off";
 export type StreakReset = "strict" | "forgiving";
+export type ArtPreset =
+  | "arntz"
+  | "bauhaus"
+  | "constructivist"
+  | "art_deco"
+  | "pop_art"
+  | "swiss"
+  | "custom";
 
 export interface Settings {
   image_prompt: string;
@@ -56,4 +64,6 @@ export interface Settings {
   data_path: string;
   art_model: string;
   streak_reset: StreakReset;
+  art_preset: ArtPreset;
+  include_proof_images: boolean;
 }

@@ -8,7 +8,7 @@ from pathlib import Path
 from google import genai
 from google.genai import types
 
-from settings_store import get_setting
+from settings_store import get_setting, get_art_prompt
 
 IMAGES_DIR = Path(__file__).parent / "generated_images"
 IMAGES_DIR.mkdir(exist_ok=True)
@@ -21,15 +21,17 @@ def _get_client() -> genai.Client:
     return genai.Client(api_key=api_key)
 
 
-def generate_progress_art(habits_summary: str) -> dict:
-    """Generate Arntz-style art based on habit stats.
+def generate_progress_art(habits_summary: str, proof_images: list[bytes] | None = None) -> dict:
+    """Generate styled art based on habit stats.
 
     Uses Gemini Flash Image (generate_content with IMAGE modality).
     Requires a billed Google AI Studio account.
+    When proof_images are provided, they're included as multimodal input
+    so the generated art can reference the user's actual activities.
 
     Returns {"image_path": str, "image_name": str} on success.
     """
-    style_prompt = get_setting("image_prompt")
+    style_prompt = get_art_prompt()
     prompt = (
         f"{style_prompt}\n\n"
         f"Generate an image: an isotype chart representing personal habit progress:\n"
@@ -39,10 +41,22 @@ def generate_progress_art(habits_summary: str) -> dict:
         f"Pictographic human figures in rows."
     )
 
+    if proof_images:
+        prompt += (
+            "\n\nIncorporate visual elements from the reference photos "
+            "into the illustration style."
+        )
+
+    # Build contents: text prompt + optional reference images
+    contents: list = [prompt]
+    if proof_images:
+        for img_data in proof_images:
+            contents.append(types.Part.from_bytes(data=img_data, mime_type="image/jpeg"))
+
     client = _get_client()
     response = client.models.generate_content(
         model=get_setting("art_model"),
-        contents=prompt,
+        contents=contents,
         config=types.GenerateContentConfig(
             response_modalities=["IMAGE"],
         ),

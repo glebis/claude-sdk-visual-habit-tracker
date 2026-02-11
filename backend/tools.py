@@ -1,9 +1,15 @@
 """MCP tools for the habit tracker agent."""
 
 import json
+from datetime import date
+from pathlib import Path
+
 from claude_agent_sdk import tool
 from habit_store import HabitStore
 from image_generator import generate_progress_art
+from settings_store import get_setting
+
+UPLOADS_DIR = Path(__file__).parent / "uploads"
 
 store = HabitStore()
 
@@ -162,8 +168,23 @@ async def generate_progress_art_tool(args):
         status = "active streak" if h["streak"] > 0 else "no streak"
         summary_lines.append(f"{h['name']}: streak {h['streak']}, {status}")
 
+    # Gather today's proof images if enabled
+    proof_images = None
+    if get_setting("include_proof_images"):
+        today = date.today().isoformat()
+        proof_images = []
+        for h in habits:
+            for c in h.get("completions", []):
+                if c["date"] == today and c.get("proof_image"):
+                    img_path = UPLOADS_DIR / c["proof_image"]
+                    if img_path.exists():
+                        proof_images.append(img_path.read_bytes())
+            if len(proof_images) >= 3:
+                break
+        proof_images = proof_images[:3] or None
+
     try:
-        result = generate_progress_art("\n".join(summary_lines))
+        result = generate_progress_art("\n".join(summary_lines), proof_images=proof_images)
         return {
             "content": [
                 {
