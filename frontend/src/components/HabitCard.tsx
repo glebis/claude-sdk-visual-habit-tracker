@@ -12,7 +12,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Camera, Check, Trash2, Undo2 } from "lucide-react";
+import { Camera, Check, Trash2, Undo2, Upload } from "lucide-react";
+import { CameraCapture } from "@/components/CameraCapture";
 
 interface HabitCardProps {
   habit: Habit;
@@ -84,6 +85,7 @@ export function HabitCard({
 
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(habit.name);
+  const [cameraOpen, setCameraOpen] = useState(false);
 
   // Build dot data: last DOT_COUNT slots, filled from completions
   const completions = [...habit.completions]
@@ -126,11 +128,16 @@ export function HabitCard({
     onComplete(habit.id, path);
   };
 
+  const handleCameraCapture = async (file: File) => {
+    const path = await onUploadProof(file);
+    onComplete(habit.id, path);
+  };
+
   const dotColor = "bg-primary";
 
   return (
     <div
-      className={`group flex items-center gap-3 px-4 py-3 rounded-sm border bg-card transition-colors ${
+      className={`group flex items-center gap-3 px-2 py-3 rounded-sm border bg-card transition-colors ${
         isDone
           ? "border-secondary/30 text-muted-foreground"
           : isRest
@@ -212,15 +219,24 @@ export function HabitCard({
             Rest
           </Button>
         ) : (
-          <Button
-            variant="default"
-            size="sm"
-            className="h-8 text-xs"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Camera className="h-3.5 w-3.5 mr-1" />
-            Proof
-          </Button>
+          <>
+            <Button
+              variant="default"
+              size="icon-sm"
+              title="Take photo"
+              onClick={() => setCameraOpen(true)}
+            >
+              <Camera className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon-sm"
+              title="Upload file"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload className="h-3.5 w-3.5" />
+            </Button>
+          </>
         )}
 
         <AlertDialog>
@@ -255,6 +271,11 @@ export function HabitCard({
           accept="image/*"
           className="hidden"
           onChange={handleProofUpload}
+        />
+        <CameraCapture
+          open={cameraOpen}
+          onOpenChange={setCameraOpen}
+          onCapture={handleCameraCapture}
         />
       </div>
     </div>
