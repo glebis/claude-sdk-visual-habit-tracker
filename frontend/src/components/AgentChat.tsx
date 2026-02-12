@@ -1,11 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import Markdown from "react-markdown";
 import type { ChatMessage } from "@/types";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
 import { SendHorizontal, X } from "lucide-react";
 
 const THINKING_MESSAGES = [
@@ -29,6 +27,7 @@ interface AgentChatProps {
   isConnected: boolean;
   isThinking: boolean;
   onSend: (message: string) => void;
+  hideHeader?: boolean;
 }
 
 export function AgentChat({
@@ -36,6 +35,7 @@ export function AgentChat({
   isConnected,
   isThinking,
   onSend,
+  hideHeader,
 }: AgentChatProps) {
   const [input, setInput] = useState("");
   const [lightbox, setLightbox] = useState<string | null>(null);
@@ -54,17 +54,19 @@ export function AgentChat({
   };
 
   return (
-    <Card className="flex flex-col bg-card border-border h-full min-h-0 py-0 gap-0">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
-        <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
-          Agent Chat
-        </h2>
-        <span className="text-xs text-muted-foreground font-light">
-          {isConnected ? "Connected" : "Offline"}
-        </span>
-      </div>
+    <div className="flex flex-col h-full min-h-0">
+      {!hideHeader && (
+        <div className="flex items-center justify-between shrink-0 mb-3">
+          <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+            Agent Chat
+          </h2>
+          <span className="text-xs text-muted-foreground font-light">
+            {isConnected ? "Connected" : "Offline"}
+          </span>
+        </div>
+      )}
 
-      <ScrollArea className="flex-1 min-h-0 p-4">
+      <ScrollArea className="flex-1 min-h-0 border border-border rounded-sm p-3">
         <div className="space-y-4">
           {messages.length === 0 && (
             <div className="text-center py-6 space-y-3">
@@ -72,12 +74,13 @@ export function AgentChat({
                 Your habit companion is ready. Try:
               </p>
               <div className="flex flex-wrap gap-2 justify-center">
-                {PROMPT_SUGGESTIONS.map((prompt) => (
+                {PROMPT_SUGGESTIONS.map((prompt, i) => (
                   <button
                     key={prompt}
                     type="button"
                     onClick={() => onSend(prompt)}
-                    className="text-xs px-3 py-1.5 rounded-sm border border-border bg-background hover:bg-muted hover:border-primary/30 transition-colors text-foreground"
+                    className="text-xs px-3 py-1.5 rounded-sm border border-border bg-background hover:bg-muted hover:border-primary/30 transition-colors text-foreground animate-fade-in-up"
+                    style={{ animationDelay: `${200 + i * 60}ms` }}
                   >
                     {prompt}
                   </button>
@@ -89,7 +92,7 @@ export function AgentChat({
           {messages.map((msg, i) => (
             <div
               key={i}
-              className={`text-sm ${
+              className={`text-sm animate-fade-in-up ${
                 msg.role === "user" ? "text-right" : "text-left"
               }`}
             >
@@ -133,7 +136,7 @@ export function AgentChat({
         </div>
       </ScrollArea>
 
-      <form onSubmit={handleSubmit} className="p-4 border-t border-border flex gap-2 shrink-0">
+      <form onSubmit={handleSubmit} className="pt-3 flex gap-2 shrink-0">
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -165,7 +168,7 @@ export function AgentChat({
           />
         </div>
       )}
-    </Card>
+    </div>
   );
 }
 

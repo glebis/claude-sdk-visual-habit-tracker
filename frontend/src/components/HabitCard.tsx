@@ -50,7 +50,7 @@ function CompletionDot({ completion, color }: { completion: Completion | null; c
       onMouseLeave={() => setHover(false)}
     >
       <div
-        className={`h-2 w-2 rounded-full ${
+        className={`h-2 w-2 rounded-full transition-colors duration-500 ease-in-out ${
           completion ? color : "bg-muted-foreground/20"
         } ${hasImage ? "ring-1 ring-foreground/15" : ""}`}
       />
@@ -201,7 +201,7 @@ export function HabitCard({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-1 shrink-0">
+      <div className="flex items-center justify-end gap-1 shrink-0 min-w-[6.5rem]">
         {isDone ? (
           <Button
             variant="outline"

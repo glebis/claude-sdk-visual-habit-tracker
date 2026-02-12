@@ -4,6 +4,8 @@ A habit tracking app with an AI companion that verifies completion via photo pro
 
 Built with [Claude Agent SDK](https://docs.anthropic.com/en/docs/claude-agent-sdk) and Google Gemini image generation.
 
+![Visual Habit Tracker screenshot](screenshot.png)
+
 ## How It Works
 
 1. **Create habits** -- daily, weekly, or custom schedules

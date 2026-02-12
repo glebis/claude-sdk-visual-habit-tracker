@@ -59,16 +59,21 @@ export function HabitList({
           )}
         </div>
       ) : (
-        filtered.map((habit) => (
-          <HabitCard
+        filtered.map((habit, i) => (
+          <div
             key={habit.id}
-            habit={habit}
-            onComplete={onComplete}
-            onUncomplete={onUncomplete}
-            onUpdate={onUpdate}
-            onDelete={onDelete}
-            onUploadProof={onUploadProof}
-          />
+            className="animate-fade-in-up"
+            style={{ animationDelay: `${i * 40}ms` }}
+          >
+            <HabitCard
+              habit={habit}
+              onComplete={onComplete}
+              onUncomplete={onUncomplete}
+              onUpdate={onUpdate}
+              onDelete={onDelete}
+              onUploadProof={onUploadProof}
+            />
+          </div>
         ))
       )}
     </div>

@@ -124,7 +124,7 @@ export function SettingsPanel({ settings, onSave, onDataPathChange }: SettingsPa
           <Settings2 className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-card border-border max-h-[85vh] overflow-y-auto sm:max-w-md">
+      <DialogContent className="bg-card border-border max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Settings</DialogTitle>
         </DialogHeader>
