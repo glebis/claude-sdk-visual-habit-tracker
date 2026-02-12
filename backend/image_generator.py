@@ -59,6 +59,7 @@ def generate_progress_art(habits_summary: str, proof_images: list[bytes] | None 
         contents=contents,
         config=types.GenerateContentConfig(
             response_modalities=["IMAGE"],
+            image_config=types.ImageConfig(aspect_ratio="9:16"),
         ),
     )
 

@@ -1,0 +1,10 @@
+{
+  "image_prompt": "Gerd Arntz isotype style illustration on aged paper texture. Muted earthy colors: terracotta, olive green, dark navy, warm ochre. Bold geometric shapes, clean flat design, no text, no letters, no words. Simplified pictographic figures. Vintage infographic aesthetic. Linocut print texture.",
+  "personal_prompt": "",
+  "proof_strictness": "normal",
+  "data_path": "habits.json",
+  "art_model": "gemini-2.5-flash-image",
+  "streak_reset": "strict",
+  "art_preset": "swiss",
+  "include_proof_images": true
+}
