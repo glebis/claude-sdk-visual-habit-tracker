@@ -49,7 +49,7 @@ DEFAULTS = {
     "personal_prompt": "",
     "proof_strictness": "normal",
     "data_path": "habits.json",
-    "art_model": "gemini-2.5-flash-image",
+    "art_model": "gemini-3-pro-image-preview",
     "streak_reset": "strict",
     "art_preset": "arntz",
     "include_proof_images": False,
