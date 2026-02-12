@@ -33,7 +33,7 @@ Product concept for general consumers. People building personal habits (meditati
 5. **Restraint in motion** -- Animations serve function (loading states, transitions), never decoration. Static UI is confident UI.
 
 ## Tech Stack
-- **Backend**: FastAPI + Claude Agent SDK (subscription auth, bypassPermissions) + Google GenAI (gemini-2.5-flash-image)
+- **Backend**: FastAPI + Claude Agent SDK (subscription auth, bypassPermissions) + Google GenAI (gemini-3-pro-image-preview)
 - **Frontend**: React 19 + Vite 7 + TypeScript + Tailwind v4 + shadcn/ui (new-york) + anime.js v4 + Lucide icons
 - **Data**: JSON file storage (habits.json), no database
 - **Auth model**: Claude SDK uses subscription auth (ANTHROPIC_API_KEY must be unset)

@@ -41,7 +41,7 @@ The Claude agent has access to these MCP tools:
 
 ## Tech Stack
 
-**Backend**: Python, FastAPI, Claude Agent SDK, Google GenAI (gemini-2.5-flash-image)
+**Backend**: Python, FastAPI, Claude Agent SDK, Google GenAI (gemini-3-pro-image-preview)
 
 **Frontend**: React 19, TypeScript, Vite 7, Tailwind CSS v4, shadcn/ui, Lucide icons, react-markdown
 
